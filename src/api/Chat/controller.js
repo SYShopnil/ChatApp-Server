@@ -111,6 +111,42 @@ const getAllConversationsBetweenTwoUsers = async (req, res) => {
     }
 }
 
+//get only own chat list users
+const getOwnChatBoxHandler = async (req, res) => {
+    try {
+        const {_id:loggedInUseID} = req.user //get the logged in user id 
+        const findAllChat = await Chat.find ({
+            "members": {
+                $in: loggedInUseID
+            }
+        }).select (`
+            latestMessage
+            chatName
+        `)
+        if (findAllChat.length != 0) { //if chat found
+            res.json ({
+                message: "Chat Found",
+                status: 202,
+                chats: findAllChat
+            })
+        }else {
+            res.json ({
+                message: "Chat Not Found",
+                status: 404,
+                chats: null
+            })
+        }
+    }catch (err) {
+        console.log(err)
+        res.json ({
+            message: err.message,
+            status: 406,
+            chats: null
+        })
+    }
+}
+
 module.exports = {
-    getAllConversationsBetweenTwoUsers
+    getAllConversationsBetweenTwoUsers,
+    getOwnChatBoxHandler
 }
