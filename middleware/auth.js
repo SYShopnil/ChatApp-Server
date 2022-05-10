@@ -6,6 +6,7 @@ const authenticationMiddleware = async (req, res, next) => {
     try {
         // const token = req.header('Authorization') //get the token from headers
         const {auth:token} = req.cookies //get the token from headers
+        // console.log(token)
         //get the dot env file data
         const securityCode = process.env.JWT_CODE //ge the security code from dot env
         if(!token) {
@@ -26,12 +27,14 @@ const authenticationMiddleware = async (req, res, next) => {
                     next ();
                 }else {
                     res.json ({
-                        message: "Unauthorized user"
+                        message: "Unauthorized user",
+                        status: 404
                     })
                 }
             }else {
                 res.json ({
-                    message: "Unauthorized user"
+                    message: "Unauthorized user",
+                    status: 404
                 })
             }
         }

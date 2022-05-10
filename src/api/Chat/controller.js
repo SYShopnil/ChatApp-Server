@@ -121,8 +121,15 @@ const getOwnChatBoxHandler = async (req, res) => {
             }
         }).select (`
             latestMessage
-            chatName
-        `)
+            chatName,
+            members
+        `).populate ({
+            path: "members",
+            select: `
+                name
+                profilePic
+            `
+        })
         if (findAllChat.length != 0) { //if chat found
             res.json ({
                 message: "Chat Found",

@@ -196,11 +196,30 @@ const loginHandler =  async (req, res) => {
     }
 }
 
+//check user logged in 
+const isLoggedInCheckHandler =  async (req, res) => { 
+    try {
+        loggedInUser = req.user;
+        res.json ({
+            message: "User is Logged in",
+            status: 202,
+            user: loggedInUser
+        })
+    }catch (err) {
+        console.log(err)
+        res.json ({
+            message: err.message,
+            status: 406
+        })
+    }
+}
+
 
 
 module.exports =  {
     createUserHandler,
     showALlUserHandlerWithSearch,
     showIndividualUserById,
-    loginHandler
+    loginHandler,
+    isLoggedInCheckHandler
 }
