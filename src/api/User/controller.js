@@ -214,6 +214,21 @@ const isLoggedInCheckHandler =  async (req, res) => {
     }
 }
 
+//logout handler 
+const logoutHandler = async (req, res) => {
+    try {
+        res.clearCookie ("auth").json ({
+            message: "Logged out successfully",
+            status: 202
+        })
+    }catch (err) {
+        console.log(err)
+        res.json ({
+            message: err.message,
+            status: 406
+        })
+    }
+}
 
 
 module.exports =  {
@@ -221,5 +236,6 @@ module.exports =  {
     showALlUserHandlerWithSearch,
     showIndividualUserById,
     loginHandler,
-    isLoggedInCheckHandler
+    isLoggedInCheckHandler,
+    logoutHandler
 }

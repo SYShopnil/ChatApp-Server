@@ -4,7 +4,8 @@ const {
     createUserHandler,
     showALlUserHandlerWithSearch,
     loginHandler,
-    isLoggedInCheckHandler
+    isLoggedInCheckHandler,
+    logoutHandler
 } = require('./controller')
 const auth = require('../../../middleware/auth')
 
@@ -12,7 +13,10 @@ route.post ("/register", createUserHandler)
 route.post ("/show/all", showALlUserHandlerWithSearch)
 route.post ("/login", loginHandler)
 
+
+
 //get api
 route.get ("/check/login", auth, isLoggedInCheckHandler)
+route.get ("/logout", auth, logoutHandler)
 
 module.exports = route

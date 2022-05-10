@@ -46,7 +46,7 @@ const createNewMessageHandler = async (req, res) => {
         }else {
             res.json ({
                 message: "Message sent failed",
-                status: 406 
+                status: 406
             })
         }
     }catch (err) {
