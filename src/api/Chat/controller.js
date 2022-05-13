@@ -41,6 +41,7 @@ const getAllConversationsBetweenTwoUsers = async (req, res) => {
                 `
             }
         ])
+        // console.log(checkExistence)
         if (checkExistence){  //if previous conversation exist 
             const conversationId = checkExistence._id;
             //get all message by conversation id 
@@ -86,7 +87,7 @@ const getAllConversationsBetweenTwoUsers = async (req, res) => {
             if (saveNewConversation) {
                 res.json ({
                     message: "A new conversation was created",
-                    status: 406,
+                    status: 201,
                     messageDetails: null,
                     isConversation: false,
                     conversationDetails: saveNewConversation

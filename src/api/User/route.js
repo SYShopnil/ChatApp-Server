@@ -10,7 +10,7 @@ const {
 const auth = require('../../../middleware/auth')
 
 route.post ("/register", createUserHandler)
-route.post ("/show/all", showALlUserHandlerWithSearch)
+route.post ("/show/all", auth, showALlUserHandlerWithSearch)
 route.post ("/login", loginHandler)
 
 

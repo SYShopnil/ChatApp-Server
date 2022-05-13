@@ -61,10 +61,16 @@ const showALlUserHandlerWithSearch = async (req, res) => {
         const {
             searchBy
         } =  req.body
+        const {
+            _id: loggedInUserID
+        } = req.user //get the logged in user id from authentication token
         const query = {
             $and: [
                 {
-                    isDelete: false
+                    isDelete: false,
+                    _id: {
+                        $ne: loggedInUserID
+                    }
                 }
             ]
         };

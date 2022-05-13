@@ -35,25 +35,29 @@ const createNewMessageHandler = async (req, res) => {
             if (updateChatDetails.modifiedCount != 0) {
                 res.json ({
                     message: "New message sent",
-                    status: 201
+                    status: 201,
+                    newMessage: saveNewMessage
                 })
             }else {
                 res.json ({
                     message: "New message sent but latest message has not set",
-                    status: 201
+                    status: 201,
+                    newMessage: saveNewMessage
                 })
             }
         }else {
             res.json ({
                 message: "Message sent failed",
-                status: 406
+                status: 406,
+                newMessage: null
             })
         }
     }catch (err) {
         console.log(err)
         res.json ({
             message: err.message,
-            status: 406
+            status: 406,
+            newMessage: null
         })
     }
 }
