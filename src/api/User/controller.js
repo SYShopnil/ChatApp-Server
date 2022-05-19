@@ -236,6 +236,34 @@ const logoutHandler = async (req, res) => {
     }
 }
 
+//get user information by id 
+const getUserInfoById = async (req, res) =>  {
+    try {
+        const findUser = await User.findOne ({
+            "_id": req.params.id,
+            "isDelete": false
+        })
+        if (findUser) {
+            res.json ({
+                message: "User found",
+                status: 202,
+                userData: findUser
+            })
+        }else {
+            res.json ({
+                message: "User not found",
+                status: 404,
+                userData: null
+            })
+        }
+    }catch (err) {
+        res.json ({
+            message: err.message,
+            status: 406,
+            userData: null
+        })
+    }
+} 
 
 module.exports =  {
     createUserHandler,
@@ -243,5 +271,6 @@ module.exports =  {
     showIndividualUserById,
     loginHandler,
     isLoggedInCheckHandler,
-    logoutHandler
+    logoutHandler,
+    getUserInfoById
 }

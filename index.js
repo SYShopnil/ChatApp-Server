@@ -8,6 +8,11 @@ const cors = require ("cors");
 const UserRoute = require('./src/api/User/route');
 const ChatRoute = require('./src/api/Chat/route');
 const MessageRoute = require('./src/api/Message/route');
+const {
+  addUser,
+  removeUser,
+  findUserSocketId
+} = require('./src/socket/messageController')
 
 
 //rest
@@ -61,45 +66,21 @@ app.get ("*", (req, res) => {
 //===================== socket io part ==========================//
 const {
   Server
-} = require("socket.io")
+} = require("socket.io");
+const user = require('./src/model/user');
 const io = new Server (server, {
     cors: {
         origin: process.env.CORS_ORIGIN,
     }
 }) //setup the socket server instance
 
-const onlineUser = []
 
+//Old one
 io.on ("connection", (socket) => {
   //when a new user will ber s
-  socket.on("active", (activeUser) => {
-    const active = {}
-    //check 1st that same user already active or not 
-    let isActive = false;
-    onlineUser.forEach (user => {
-      for  (key in user) {
-        if (key == activeUser) {
-          isActive = true
-        }
-      }
-    })
-
-    //if already active then just update the socket id of that key other wise add a new user to the onlineUser
-    if (isActive) { //update the socket id of that active user
-      onlineUser.forEach ((user, ind) => {
-      for  (key in user) {
-        if (key == activeUser) {
-          onlineUser[ind][key] = socket.id
-        }
-      }
-    })
-    }else { //creat a new user as a active user and set the socket id
-      active [activeUser] = socket.id
-      onlineUser.push (active)
-    }
-    socket.join (activeUser)//create a room for active user
-    // console.log({onlineUser})
-    // console.log(`Active end`)
+  socket.on("active", (userID) => {
+    addUser (userID, socket.id)
+    socket.emit ("connected");
   })
 
   socket.on ("joinChat", (chatID) => {
@@ -107,7 +88,7 @@ io.on ("connection", (socket) => {
   })
 
   socket.on ("typing", (chatID) => {
-    socket.in (chatID).emit ("startTyping")
+    socket.in (chatID).emit ("startTyping", chatID)
   });
   socket.on ("typingFinish", (chatID) => {
     socket.in (chatID).emit ("stopTyping")
@@ -118,69 +99,34 @@ io.on ("connection", (socket) => {
       chatMembers,
       chatId
     } = messageInfo //get the emit data 
-    // console.log({messageInfo})
-    chatMembers.forEach(member => {
+    const senderId = sendBy //store the message sender id
+    chatMembers.forEach(member => { //it will send notification of message received except the sender
       if (member._id == sendBy) return member
       const sendData = {
         chatId,
-        participant:member._id 
+        participant:member._id ,
+        sender: senderId
       }
-      // let senderSocketId;
-      // onlineUser.forEach (user => {
-      //   for (key in user) {
-      //     console.log({key, user})
-      //     if (key == member._id) {
-      //       senderSocketId = user [key]
-      //     }
-      //   }
-      // });
-      // console.log(`New message send`)
-      // console.log({onlineUser})
-      // console.log({senderSocketId})
-      // senderSocketId && io.emit ("messageReceive", sendData)
-      // senderSocketId && io.sockets.to (senderSocketId).emit ("messageReceive", sendData)
-      io.sockets.in (chatId).emit ("messageReceive", sendData)
+      const getSocketId = findUserSocketId (member._id)
+      if (getSocketId) {
+        const senderSocketId = getSocketId.socketId
+        io.to (senderSocketId).emit ("messageReceive", sendData ) 
+        io.sockets.in (chatId).emit ("messageReceive", sendData)
+      }else {
+        return
+      }
     })
+  })
+
+  socket.on ("disconnectSocket", () => {
+    const isRemove = removeUser (socket.id);
+    if (isRemove) {
+      socket.disconnect ();
+    }
+  })
+  socket.on ("disconnect", () => {
+    removeUser (socket.id);
   })
 })
 
 
-
-
-// io.on ("connection", (socket) => {
-//   //when a new user will ber s
-//   socket.on("active", (activeUser) => {
-//     console.log(`${activeUser} user is connected`)
-//     socket.join (activeUser)//create a room for active user
-//     socket.emit ("connected");
-//   })
-
-//   socket.on ("joinChat", (chatID) => {
-//     // console.log(`User is joined chat id ${chatId}`)
-//     console.log(chatID)
-//     socket.join (chatID)
-//   })
-//   socket.on ("newMessage", (messageInfo) => {
-//     const {
-//       sendBy,
-//       chatMembers,
-//       chatId
-//     } = messageInfo //get the emit data 
-//     // console.log({messageInfo})
-//     chatMembers.forEach(member => {
-//       if (member._id == sendBy) return member
-//       const sendData = {
-//         chatId,
-//         participant:member._id 
-//       }
-//       let senderSocketId;
-//       console.log(`Message need to sent to ${member._id }`)
-//       // io.to(senderSocketId).emit ("messageReceive", sendData)
-//       io.to(chatId).emit ("messageReceive", sendData)
-//     })
-//   })
-
-//   socket.on ("disconnect", () => {
-//     console.log(`Disconnected`)
-//   })
-// })
